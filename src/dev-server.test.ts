@@ -59,8 +59,7 @@ describe('DevServer', () => {
     const res = await fetch(`http://localhost:${port}/@hmr-client`);
     expect(res.ok).toBe(true);
     const js = await res.text();
-    console.log(js);
     expect(js).toContain('WebSocket');
-    expect(js).toContain('import.meta.hot');
+    expect(js).toContain('__MINI_DEV_HOT__');
   });
-});
+})
