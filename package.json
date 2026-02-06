@@ -1,6 +1,6 @@
 {
   "name": "mini-dev",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A minimal dev server with HMR for TypeScript/JS/CSS",
   "type": "module",
   "main": "dist/index.js",
@@ -24,9 +24,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "bump": "bumpp",
-    "bump:patch": "pnpm version patch",
-    "bump:minor": "pnpm version minor",
-    "bump:major": "pnpm version major",
+    "bump:patch": "bumpp --release patch --yes",
+    "bump:minor": "bumpp --release minor --yes",
+    "bump:major": "bumpp --release major --yes",
     "release": "pnpm run test && pnpm run build && pnpm version patch && pnpm publish",
     "release:beta": "pnpm run test && pnpm run build && pnpm version prerelease --preid=beta && pnpm publish --tag beta"
   },
@@ -52,7 +52,7 @@
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^2.1.6",
-    "bumpp": "^10.0.0"
+    "bumpp": "^10.2.3"
   },
   "packageManager": "pnpm@9.15.0"
 }
