@@ -1,5 +1,5 @@
 {
-  "name": "@kinfish/mini-dev",
+  "name": "@farming-labs/mini-dev",
   "version": "0.0.2-beta.1",
   "description": "A minimal dev server with HMR for TypeScript/JS/CSS",
   "type": "module",
@@ -27,8 +27,8 @@
     "bump:patch": "bumpp --release patch --yes",
     "bump:minor": "bumpp --release minor --yes",
     "bump:major": "bumpp --release major --yes",
-    "release": "pnpm build && bumpp && pnpm publish --access public --no-git-checks", 
-    "release:beta": "pnpm build && bumpp --preid beta && pnpm publish --access public --tag beta --no-git-checks" 
+    "release": "pnpm build && bumpp && pnpm publish --access public --no-git-checks",
+    "release:beta": "pnpm build && bumpp --preid beta && pnpm publish --access public --tag beta --no-git-checks"
   },
   "keywords": [
     "dev-server",
@@ -54,5 +54,16 @@
     "vitest": "^2.1.6",
     "bumpp": "^10.2.3"
   },
-  "packageManager": "pnpm@9.15.0"
+  "packageManager": "pnpm@9.15.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/farming-labs/mini-dev.git"
+  },
+  "homepage": "https://github.com/farming-labs/mini-dev#readme",
+  "bugs": {
+    "url": "https://github.com/farming-labs/mini-dev/issues"
+  }
 }

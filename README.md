@@ -12,7 +12,7 @@ A minimal dev server with HMR (Hot Module Replacement) for TypeScript, TSX, CSS,
 ## Install
 
 ```bash
-pnpm add @kinfish/mini-dev
+pnpm add @farming-labs/mini-dev
 ```
 
 ## Quick Start
@@ -20,17 +20,17 @@ pnpm add @kinfish/mini-dev
 ### CLI
 
 ```bash
-npx @kinfish/mini-dev
+npx @farming-labs/mini-dev
 # Server at http://localhost:3000
 
 # Custom port and root
-npx @kinfish/mini-dev -p 5173 -r ./my-app
+npx @farming-labs/mini-dev -p 5173 -r ./my-app
 ```
 
 ### Programmatic API
 
 ```ts
-import { createDevServer } from '@kinfish/mini-dev';
+import { createDevServer } from '@farming-labs/mini-dev';
 
 const { url, stop } = await createDevServer({ port: 3000 });
 console.log('Running at', url);
@@ -40,7 +40,7 @@ console.log('Running at', url);
 ### DevServer Class
 
 ```ts
-import { DevServer } from '@kinfish/mini-dev';
+import { DevServer } from '@farming-labs/mini-dev';
 
 const server = new DevServer({
   root: './src',

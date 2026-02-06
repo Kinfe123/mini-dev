@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { createDevServer } from 'mini-dev';
+ * import { createDevServer } from '@farming-labs/mini-dev';
  *
  * const { server, url } = await createDevServer({ port: 3000 });
  * console.log('Server running at', url);

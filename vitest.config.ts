@@ -8,7 +8,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      'mini-dev': resolve(__dirname, 'src/index.ts'),
+      '@farming-labs/mini-dev': resolve(__dirname, 'src/index.ts'),
     },
   },
 });
