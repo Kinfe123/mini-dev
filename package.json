@@ -1,6 +1,6 @@
 {
   "name": "mini-dev",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A minimal dev server with HMR for TypeScript/JS/CSS",
   "type": "module",
   "main": "dist/index.js",
@@ -27,8 +27,8 @@
     "bump:patch": "bumpp --release patch --yes",
     "bump:minor": "bumpp --release minor --yes",
     "bump:major": "bumpp --release major --yes",
-    "release": "pnpm run test && pnpm run build && pnpm version patch && pnpm publish",
-    "release:beta": "pnpm run test && pnpm run build && pnpm version prerelease --preid=beta && pnpm publish --tag beta"
+    "release": "pnpm run test && pnpm run build && npm version patch && npm publish",
+    "release:beta": "pnpm run test && pnpm run build && npm version prerelease --preid=beta && npm publish --tag beta"
   },
   "keywords": [
     "dev-server",
