@@ -22,7 +22,13 @@
     "dev": "tsx src/cli.ts",
     "start": "node dist/cli.js",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "bump": "bumpp",
+    "bump:patch": "pnpm version patch",
+    "bump:minor": "pnpm version minor",
+    "bump:major": "pnpm version major",
+    "release": "pnpm run test && pnpm run build && pnpm version patch && pnpm publish",
+    "release:beta": "pnpm run test && pnpm run build && pnpm version prerelease --preid=beta && pnpm publish --tag beta"
   },
   "keywords": [
     "dev-server",
@@ -45,7 +51,8 @@
     "tsc-alias": "^1.8.10",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.6"
+    "vitest": "^2.1.6",
+    "bumpp": "^10.0.0"
   },
   "packageManager": "pnpm@9.15.0"
 }
