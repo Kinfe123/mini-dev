@@ -12,7 +12,7 @@ A minimal dev server with HMR (Hot Module Replacement) for TypeScript, TSX, CSS,
 ## Install
 
 ```bash
-pnpm add mini-dev
+pnpm add @kinfish/mini-dev
 ```
 
 ## Quick Start
