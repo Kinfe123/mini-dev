@@ -2,6 +2,7 @@
 
 import { resolve } from 'node:path';
 import { DevServer } from './dev-server.js';
+import { loadConfig } from './load-config.js';
 
 const args = process.argv.slice(2);
 let port = 3000;
@@ -63,12 +64,14 @@ Options:
   }
 }
 
+const config = await loadConfig(root);
 const server = new DevServer({
+  ...config,
   root,
   port,
-  host,
-  verbose,
-  open,
+  ...(host !== undefined && { host }),
+  verbose: verbose || config.verbose,
+  open: open || config.open,
   ...(label && { label }),
   ...(silent !== undefined && { silent }),
 });

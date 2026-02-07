@@ -5,6 +5,7 @@ A minimal dev server with HMR (Hot Module Replacement) for TypeScript, TSX, CSS,
 ## Features
 
 - **Zero config** — Works out of the box
+- **Config file** — Optional `mini-dev.config.ts` or `mini-dev.config.js`
 - **TypeScript/TSX** — On-the-fly transpilation via esbuild
 - **HMR** — Hot module replacement without full page reload
 - **Simple API** — Programmatic and CLI usage
@@ -65,6 +66,23 @@ const server = new DevServer({
 const { port, url } = await server.start();
 // await server.stop();
 ```
+
+## Config
+
+Optional config file in project root (`mini-dev.config.ts` or `mini-dev.config.js`):
+
+```ts
+// mini-dev.config.ts
+import type { DevServerOptions } from '@farming-labs/mini-dev';
+
+export default {
+  port: 5173,
+  open: true,
+  label: 'MY-APP',
+} satisfies Partial<DevServerOptions>;
+```
+
+CLI options override config.
 
 ## Example
 

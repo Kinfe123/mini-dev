@@ -1,5 +1,9 @@
 # mini-dev API Reference
 
+## Config File
+
+Optional `mini-dev.config.ts` or `mini-dev.config.js` in project root. CLI options override config.
+
 ## `createDevServer(options?)`
 
 Create and start a dev server. Returns a promise that resolves to `{ server, port, url, stop }`.
