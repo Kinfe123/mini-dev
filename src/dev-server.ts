@@ -1,4 +1,5 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
+import { networkInterfaces } from 'node:os';
 import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, extname, dirname, resolve } from 'node:path';
@@ -45,6 +46,7 @@ export class DevServer {
   private ignored: string | RegExp | (string | RegExp)[];
   private label: string;
   private silent: boolean;
+  private open: boolean;
   private moduleGraph = new Map<string, ModuleInfo>();
   private clients = new Set<WSWebSocket>();
   private httpServer: ReturnType<typeof createServer> | null = null;
@@ -54,11 +56,25 @@ export class DevServer {
   constructor(options: DevServerOptions = {}) {
     this.root = resolve(options.root ?? process.cwd());
     this.port = options.port ?? 3000;
-    this.host = options.host ?? '0.0.0.0';
+    this.host = options.host ?? '127.0.0.1';
     this.verbose = options.verbose ?? false;
     this.ignored = options.ignored ?? /node_modules/;
     this.label = options.label ?? 'MINI-DEV';
     this.silent = options.silent ?? process.env.CI === 'true';
+    this.open = options.open ?? false;
+  }
+
+  private getNetworkUrl(): string | null {
+    if (this.host !== '0.0.0.0') return null;
+    const nets = networkInterfaces();
+    for (const addrs of Object.values(nets ?? {})) {
+      for (const addr of addrs ?? []) {
+        if (addr.family === 'IPv4' && !addr.internal) {
+          return `http://${addr.address}:${this.port}/`;
+        }
+      }
+    }
+    return `http://0.0.0.0:${this.port}/`;
   }
 
   private log(...args: unknown[]): void {
@@ -96,7 +112,8 @@ export class DevServer {
     return new Promise((resolve) => {
       this.httpServer!.listen(this.port, this.host, () => {
         const readyMs = Date.now() - startTime;
-        const url = `http://localhost:${this.port}/`;
+        const localUrl = `http://localhost:${this.port}/`;
+        const networkUrl = this.getNetworkUrl();
         const c = {
           dim: '\x1b[2m',
           cyan: '\x1b[36m',
@@ -105,12 +122,19 @@ export class DevServer {
           reset: '\x1b[0m',
         };
         const version = pkg.version ?? '0.0.1';
-        console.log(
+        let lines =
           `\n${c.bold}${c.cyan}  ${this.label}${c.reset} v${version} ${c.dim}ready in ${readyMs}ms${c.reset}\n\n` +
-            `${c.green}  ➜${c.reset}  ${c.dim}Local:${c.reset}   ${url}\n` +
-            `${c.green}  ➜${c.reset}  ${c.dim}Network:${c.reset} use --host to expose\n`
-        );
-        resolve({ port: this.port, url });
+          `${c.green}  ➜${c.reset}  ${c.dim}Local:${c.reset}   ${localUrl}\n`;
+        if (networkUrl) {
+          lines += `${c.green}  ➜${c.reset}  ${c.dim}Network:${c.reset} ${networkUrl}\n`;
+        } else {
+          lines += `${c.green}  ➜${c.reset}  ${c.dim}Network:${c.reset} use --host to expose\n`;
+        }
+        console.log(lines);
+        if (this.open) {
+          import('open').then(({ default: open }) => open(localUrl)).catch(() => {});
+        }
+        resolve({ port: this.port, url: localUrl });
       });
     });
   }

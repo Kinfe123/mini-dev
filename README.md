@@ -29,6 +29,12 @@ npx @farming-labs/mini-dev -p 5173 -r ./my-app
 # Custom label (default: MINI-DEV)
 npx @farming-labs/mini-dev -l MY-APP
 
+# Open browser on start
+npx @farming-labs/mini-dev -o
+
+# Expose to network (access from other devices)
+npx @farming-labs/mini-dev --host
+
 # Silent mode (no logs; auto-enabled when CI=true)
 npx @farming-labs/mini-dev -s
 ```

@@ -6,7 +6,7 @@ export interface DevServerOptions {
     root?: string;
     /** Port to listen on. Defaults to `3000` */
     port?: number;
-    /** Host to bind to. Defaults to `0.0.0.0` */
+    /** Host to bind to. Defaults to `127.0.0.1`; use `0.0.0.0` to expose to network */
     host?: string;
     /** Enable verbose logging */
     verbose?: boolean;
@@ -16,6 +16,8 @@ export interface DevServerOptions {
     label?: string;
     /** Disable all logs (terminal + browser HMR). Defaults to `process.env.CI === 'true'` */
     silent?: boolean;
+    /** Open browser on start */
+    open?: boolean;
 }
 /**
  * Module metadata stored in the module graph.

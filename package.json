@@ -43,16 +43,17 @@
   "dependencies": {
     "chokidar": "^4.0.1",
     "esbuild": "^0.24.0",
+    "open": "^11.0.0",
     "ws": "^8.18.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
     "@types/ws": "^8.5.13",
+    "bumpp": "^10.2.3",
     "tsc-alias": "^1.8.10",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.6",
-    "bumpp": "^10.2.3"
+    "vitest": "^2.1.6"
   },
   "packageManager": "pnpm@9.15.0",
   "publishConfig": {

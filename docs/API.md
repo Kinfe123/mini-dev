@@ -33,6 +33,7 @@ new DevServer(options?: DevServerOptions)
 | `ignored`| `string \| RegExp \| []`  | `node_modules`  | Paths to ignore when watching  |
 | `label`  | `string`                 | `'MINI-DEV'`    | Custom label for terminal + HMR logs |
 | `silent` | `boolean`                | `process.env.CI === 'true'` | Disable all logs (terminal + browser) |
+| `open`   | `boolean`                | `false`                     | Open browser on start |
 
 ### Methods
 
@@ -50,6 +51,8 @@ mini-dev [options]
 | `-p, --port` | Port (default: 3000)       |
 | `-r, --root` | Root directory (default: cwd) |
 | `-l, --label` | Dev server label (default: MINI-DEV) |
+| `-o, --open` | Open browser on start |
+| `--host [addr]` | Expose to network (0.0.0.0) |
 | `-s, --silent` | Disable all logs |
 | `-v, --verbose` | Verbose logging        |
 | `-h, --help` | Show help                  |

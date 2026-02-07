@@ -11,12 +11,14 @@ export declare class DevServer {
     private ignored;
     private label;
     private silent;
+    private open;
     private moduleGraph;
     private clients;
     private httpServer;
     private wss;
     private watcher;
     constructor(options?: DevServerOptions);
+    private getNetworkUrl;
     private log;
     /**
      * Start the dev server.

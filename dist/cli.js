@@ -7,6 +7,8 @@ let root = process.cwd();
 let verbose = false;
 let silent;
 let label;
+let open = false;
+let host;
 for (let i = 0; i < args.length; i++) {
     switch (args[i]) {
         case '-p':
@@ -20,6 +22,13 @@ for (let i = 0; i < args.length; i++) {
         case '-l':
         case '--label':
             label = args[++i];
+            break;
+        case '-o':
+        case '--open':
+            open = true;
+            break;
+        case '--host':
+            host = args[i + 1] && !args[i + 1].startsWith('-') ? args[++i] : '0.0.0.0';
             break;
         case '-s':
         case '--silent':
@@ -41,6 +50,8 @@ Options:
   -p, --port <number>  Port to listen on (default: 3000)
   -r, --root <path>    Root directory to serve (default: cwd)
   -l, --label <name>   Dev server label in logs (default: MINI-DEV)
+  -o, --open           Open browser on start
+  --host [addr]        Expose to network (default: 0.0.0.0)
   -s, --silent         Disable all logs (auto-enabled when CI=true)
   -v, --verbose        Enable verbose logging
   -h, --help           Show this help
@@ -51,7 +62,9 @@ Options:
 const server = new DevServer({
     root,
     port,
+    host,
     verbose,
+    open,
     ...(label && { label }),
     ...(silent !== undefined && { silent }),
 });
