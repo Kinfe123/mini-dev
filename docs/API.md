@@ -4,6 +4,10 @@
 
 Optional `mini-dev.config.ts` or `mini-dev.config.js` in project root. CLI options override config.
 
+## Static assets (public/)
+
+Files in `public/` are served at `/` (e.g. `public/favicon.ico` → `/favicon.ico`). No `public/` directory is required.
+
 ## `createDevServer(options?)`
 
 Create and start a dev server. Returns a promise that resolves to `{ server, port, url, stop }`.

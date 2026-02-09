@@ -6,6 +6,7 @@ A minimal dev server with HMR (Hot Module Replacement) for TypeScript, TSX, CSS,
 
 - **Zero config** — Works out of the box
 - **Config file** — Optional `mini-dev.config.ts` or `mini-dev.config.js`
+- **public/ directory** — Static assets (favicon, images, robots.txt) served at `/`
 - **TypeScript/TSX** — On-the-fly transpilation via esbuild
 - **HMR** — Hot module replacement without full page reload
 - **Simple API** — Programmatic and CLI usage
@@ -83,6 +84,16 @@ export default {
 ```
 
 CLI options override config.
+
+## Static assets (public/)
+
+Place files in a `public/` folder at the project root; they are served at `/`:
+
+- `public/favicon.ico` → `/favicon.ico`
+- `public/robots.txt` → `/robots.txt`
+- `public/images/logo.png` → `/images/logo.png`
+
+If `public/` does not exist, it is ignored.
 
 ## Example
 

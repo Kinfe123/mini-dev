@@ -1,8 +1,8 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { networkInterfaces } from 'node:os';
 import { readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join, extname, dirname, resolve } from 'node:path';
+import { existsSync, statSync } from 'node:fs';
+import { join, extname, dirname, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 
@@ -32,6 +32,9 @@ const MIME_TYPES: Record<string, string> = {
   '.svg': 'image/svg+xml',
   '.woff': 'font/woff',
   '.woff2': 'font/woff2',
+  '.txt': 'text/plain',
+  '.xml': 'application/xml',
+  '.webmanifest': 'application/manifest+json',
 };
 
 /**
@@ -177,6 +180,9 @@ export class DevServer {
       return this.serveHMRClient(res);
     }
 
+    const publicServed = await this.servePublic(pathname, res);
+    if (publicServed) return;
+
     try {
       const ext = extname(pathname);
 
@@ -200,6 +206,27 @@ export class DevServer {
   private redirect(res: ServerResponse, location: string): void {
     res.writeHead(302, { Location: location });
     res.end();
+  }
+
+  private async servePublic(pathname: string, res: ServerResponse): Promise<boolean> {
+    const publicDir = join(this.root, 'public');
+    if (!existsSync(publicDir)) return false;
+
+    const subPath = pathname.slice(1) || '';
+    const filePath = resolve(publicDir, subPath);
+    if (relative(publicDir, filePath).startsWith('..')) return false;
+    if (!existsSync(filePath)) return false;
+    if (!statSync(filePath).isFile()) return false;
+
+    const ext = extname(filePath);
+    const contentType = MIME_TYPES[ext] ?? 'application/octet-stream';
+    const data = await readFile(filePath);
+    res.writeHead(200, {
+      'Content-Type': contentType,
+      'Cache-Control': 'no-cache',
+    });
+    res.end(data);
+    return true;
   }
 
   private async serveHMRClient(res: ServerResponse): Promise<void> {
