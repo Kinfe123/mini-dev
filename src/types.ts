@@ -20,6 +20,19 @@ export interface DevServerOptions {
   open?: boolean;
   /** Base path for serving under a subpath, e.g. `/app/` for https://example.com/app/ */
   base?: string;
+  /**
+   * Proxy specific paths to another server.
+   * Object form: `{ '/api': 'http://localhost:8080' }`.
+   * Array form: `[{ path: '/api', target: 'http://localhost:8080' }]`.
+   * First matching path (longest first) is used. Path is matched against the logical path (under base if set).
+   */
+  proxy?: Record<string, string> | Array<{ path: string; target: string }>;
+}
+
+/** Normalized proxy rule used internally. */
+export interface ProxyRule {
+  path: string;
+  target: string;
 }
 
 /**

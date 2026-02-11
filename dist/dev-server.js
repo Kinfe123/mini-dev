@@ -54,6 +54,7 @@ export class DevServer {
     open;
     base;
     basePrefix;
+    proxyRules;
     moduleGraph = new Map();
     clients = new Set();
     httpServer = null;
@@ -71,6 +72,20 @@ export class DevServer {
         const rawBase = options.base ?? '';
         this.base = rawBase ? (rawBase.startsWith('/') ? rawBase : '/' + rawBase).replace(/\/?$/, '/') : '';
         this.basePrefix = this.base ? this.base.replace(/\/$/, '') : '';
+        this.proxyRules = this.normalizeProxy(options.proxy);
+    }
+    normalizeProxy(proxy) {
+        if (!proxy)
+            return [];
+        const entries = Array.isArray(proxy)
+            ? proxy.map(({ path, target }) => ({ path, target }))
+            : Object.entries(proxy).map(([path, target]) => ({ path, target }));
+        const rules = entries.map(({ path, target }) => ({
+            path: path.startsWith('/') ? path : '/' + path,
+            target: target.replace(/\/$/, ''),
+        }));
+        rules.sort((a, b) => b.path.length - a.path.length);
+        return rules;
     }
     getNetworkUrl() {
         if (this.host !== '0.0.0.0')
@@ -191,6 +206,9 @@ export class DevServer {
         if (pathnameForLookup === '/@hmr-client') {
             return this.serveHMRClient(res);
         }
+        const proxyHandled = await this.tryProxy(pathnameForLookup, search ?? '', req, res);
+        if (proxyHandled)
+            return;
         const publicServed = await this.servePublic(pathnameForLookup, res);
         if (publicServed)
             return;
@@ -219,6 +237,46 @@ export class DevServer {
     redirect(res, location) {
         res.writeHead(302, { Location: location });
         res.end();
+    }
+    async tryProxy(pathnameForLookup, search, req, res) {
+        const rule = this.proxyRules.find((r) => pathnameForLookup === r.path || pathnameForLookup.startsWith(r.path + '/'));
+        if (!rule)
+            return false;
+        const proxyUrl = rule.target + pathnameForLookup + (search ? '?' + search : '');
+        const headers = {};
+        for (const [key, value] of Object.entries(req.headers)) {
+            if (value === undefined)
+                continue;
+            const k = key.toLowerCase();
+            if (k === 'host' || k === 'connection')
+                continue;
+            headers[key] = Array.isArray(value) ? value.join(', ') : value;
+        }
+        try {
+            const opts = {
+                method: req.method ?? 'GET',
+                headers,
+                body: req.method !== 'GET' && req.method !== 'HEAD' ? req : undefined,
+            };
+            const proxyRes = await fetch(proxyUrl, opts);
+            const resHeaders = {};
+            proxyRes.headers.forEach((v, k) => {
+                const lower = k.toLowerCase();
+                if (lower !== 'transfer-encoding')
+                    resHeaders[k] = v;
+            });
+            res.writeHead(proxyRes.status, resHeaders);
+            const buf = await proxyRes.arrayBuffer();
+            res.end(Buffer.from(buf));
+            this.log('Proxy', req.method, pathnameForLookup, '->', proxyRes.status, rule.target);
+            return true;
+        }
+        catch (err) {
+            this.log('Proxy error', pathnameForLookup, err);
+            res.writeHead(502, { 'Content-Type': 'text/plain' });
+            res.end('Bad Gateway');
+            return true;
+        }
     }
     async listVisitablePaths() {
         const paths = [];

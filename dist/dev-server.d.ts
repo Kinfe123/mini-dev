@@ -14,12 +14,14 @@ export declare class DevServer {
     private open;
     private base;
     private basePrefix;
+    private proxyRules;
     private moduleGraph;
     private clients;
     private httpServer;
     private wss;
     private watcher;
     constructor(options?: DevServerOptions);
+    private normalizeProxy;
     private getNetworkUrl;
     private log;
     /**
@@ -35,6 +37,7 @@ export declare class DevServer {
     stop(): Promise<void>;
     private handleRequest;
     private redirect;
+    private tryProxy;
     private listVisitablePaths;
     private serve404;
     private servePublic;

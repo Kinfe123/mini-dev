@@ -47,6 +47,27 @@ new DevServer(options?: DevServerOptions)
 | `silent` | `boolean`                | `process.env.CI === 'true'` | Disable all logs (terminal + browser) |
 | `open`   | `boolean`                | `false`                     | Open browser on start |
 | `base`   | `string`                 | —                           | Base path (e.g. `'/app/'`) so the app is served at `https://example.com/app/`; assets and routes use this path |
+| `proxy`  | `Record<string, string> \| Array<{ path, target }>` | — | Forward matching paths to another server (e.g. `{ '/api': 'http://localhost:8080' }`). Longest path match wins. |
+
+### Proxy
+
+Forward specific paths to a backend so the frontend can call the same origin in dev:
+
+```ts
+// Object form
+proxy: {
+  '/api': 'http://localhost:8080',
+  '/ws': 'http://localhost:8081',
+}
+
+// Array form (same effect)
+proxy: [
+  { path: '/api', target: 'http://localhost:8080' },
+  { path: '/ws', target: 'http://localhost:8081' },
+]
+```
+
+Requests to `/api/...` are proxied to `http://localhost:8080/api/...`. Path is matched against the logical path (under `base` if set). First matching rule (longest path first) is used. Returns 502 if the target is unreachable.
 
 ### Methods
 

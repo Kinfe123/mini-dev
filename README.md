@@ -8,6 +8,7 @@ A minimal dev server with HMR (Hot Module Replacement) for TypeScript, TSX, CSS,
 - **Config file** — Optional `mini-dev.config.ts` or `mini-dev.config.js`
 - **public/ directory** — Static assets (favicon, images, robots.txt) served at `/`
 - **404 page** — Custom 404 with a list of visitable paths when a route is not found
+- **Proxy** — Forward paths (e.g. `/api`) to another server so frontend and backend can run separately
 - **TypeScript/TSX** — On-the-fly transpilation via esbuild
 - **HMR** — Hot module replacement without full page reload
 - **Simple API** — Programmatic and CLI usage
@@ -85,6 +86,7 @@ export default {
   open: true,
   label: 'MY-APP',
   // base: '/app/',  // serve at https://example.com/app/
+  // proxy: { '/api': 'http://localhost:8080' },  // forward /api to backend
 } satisfies Partial<DevServerOptions>;
 ```
 

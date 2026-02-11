@@ -12,7 +12,7 @@ import { WebSocketServer, type WebSocket as WSWebSocket } from 'ws';
 import chokidar, { type FSWatcher } from 'chokidar';
 import { transform } from 'esbuild';
 import { getHMRClient } from './hmr-client.js';
-import type { DevServerOptions, ModuleInfo } from './types.js';
+import type { DevServerOptions, ModuleInfo, ProxyRule } from './types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -60,6 +60,7 @@ export class DevServer {
   private open: boolean;
   private base: string;
   private basePrefix: string;
+  private proxyRules: ProxyRule[];
   private moduleGraph = new Map<string, ModuleInfo>();
   private clients = new Set<WSWebSocket>();
   private httpServer: ReturnType<typeof createServer> | null = null;
@@ -78,6 +79,20 @@ export class DevServer {
     const rawBase = options.base ?? '';
     this.base = rawBase ? (rawBase.startsWith('/') ? rawBase : '/' + rawBase).replace(/\/?$/, '/') : '';
     this.basePrefix = this.base ? this.base.replace(/\/$/, '') : '';
+    this.proxyRules = this.normalizeProxy(options.proxy);
+  }
+
+  private normalizeProxy(proxy: DevServerOptions['proxy']): ProxyRule[] {
+    if (!proxy) return [];
+    const entries = Array.isArray(proxy)
+      ? proxy.map(({ path, target }) => ({ path, target }))
+      : Object.entries(proxy).map(([path, target]) => ({ path, target }));
+    const rules: ProxyRule[] = entries.map(({ path, target }) => ({
+      path: path.startsWith('/') ? path : '/' + path,
+      target: target.replace(/\/$/, ''),
+    }));
+    rules.sort((a, b) => b.path.length - a.path.length);
+    return rules;
   }
 
   private getNetworkUrl(): string | null {
@@ -207,6 +222,9 @@ export class DevServer {
       return this.serveHMRClient(res);
     }
 
+    const proxyHandled = await this.tryProxy(pathnameForLookup, search ?? '', req, res);
+    if (proxyHandled) return;
+
     const publicServed = await this.servePublic(pathnameForLookup, res);
     if (publicServed) return;
 
@@ -233,6 +251,51 @@ export class DevServer {
   private redirect(res: ServerResponse, location: string): void {
     res.writeHead(302, { Location: location });
     res.end();
+  }
+
+  private async tryProxy(
+    pathnameForLookup: string,
+    search: string,
+    req: IncomingMessage,
+    res: ServerResponse
+  ): Promise<boolean> {
+    const rule = this.proxyRules.find(
+      (r) => pathnameForLookup === r.path || pathnameForLookup.startsWith(r.path + '/')
+    );
+    if (!rule) return false;
+
+    const proxyUrl = rule.target + pathnameForLookup + (search ? '?' + search : '');
+    const headers: Record<string, string> = {};
+    for (const [key, value] of Object.entries(req.headers)) {
+      if (value === undefined) continue;
+      const k = key.toLowerCase();
+      if (k === 'host' || k === 'connection') continue;
+      headers[key] = Array.isArray(value) ? value.join(', ') : value;
+    }
+
+    try {
+      const opts: RequestInit = {
+        method: req.method ?? 'GET',
+        headers,
+        body: req.method !== 'GET' && req.method !== 'HEAD' ? (req as unknown as ReadableStream) : undefined,
+      };
+      const proxyRes = await fetch(proxyUrl, opts);
+      const resHeaders: Record<string, string | string[]> = {};
+      proxyRes.headers.forEach((v, k) => {
+        const lower = k.toLowerCase();
+        if (lower !== 'transfer-encoding') resHeaders[k] = v;
+      });
+      res.writeHead(proxyRes.status, resHeaders);
+      const buf = await proxyRes.arrayBuffer();
+      res.end(Buffer.from(buf));
+      this.log('Proxy', req.method, pathnameForLookup, '->', proxyRes.status, rule.target);
+      return true;
+    } catch (err) {
+      this.log('Proxy error', pathnameForLookup, err);
+      res.writeHead(502, { 'Content-Type': 'text/plain' });
+      res.end('Bad Gateway');
+      return true;
+    }
   }
 
   private async listVisitablePaths(): Promise<string[]> {
